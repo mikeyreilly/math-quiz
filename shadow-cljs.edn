@@ -1,0 +1,21 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src/dev"
+  "src/main"
+  "src/test"]
+
+ :dependencies
+
+  [[reagent "2.0.1"]]
+ :dev-http {8080 "public"
+            8021 "out/test"}
+ :builds
+ {:frontend
+  {:target :browser
+   :modules {:main {:init-fn quaxt.arithmetic-challenge/init}}}
+
+  ;; Runs every namespace ending in -test in the browser.
+  ;; shadow-cljs generates out/test/index.html; open http://localhost:8021/
+  :test
+  {:target :browser-test
+   :test-dir "out/test"}}}

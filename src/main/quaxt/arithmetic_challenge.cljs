@@ -1,13 +1,27 @@
-(ns ^:figwheel-hooks quaxt.arithmetic-challenge
+(ns quaxt.arithmetic-challenge
   (:require
    [clojure.string :as str]
    [reagent.core :as r]
-   [clojure.edn :as edn]))
+   [clojure.edn :as edn]
+   [reagent.dom.client :as rdc]))
+
+;; (defn component []
+;;   [:p "Hello world"])
+
+;; ;; React 18+ renders through a "root". Create it once and reuse it, so that
+;; ;; hot reloads re-render into the same root instead of creating a new one.
+
+;; (ns ^:figwheel-hooks quaxt.arithmetic-challenge
+;;   (:require
+;;    [clojure.string :as str]
+;;    [reagent.core :as r]
+;;    [clojure.edn :as edn]))
 
 (def defaults {:screen :settings
                :selected-setting 0
                :quiz-length 10
                :level 12
+               :difficulty {}
                :question-types #{"+" "-" "*" "/"}})
 
 (defonce app-state (r/atom defaults))
@@ -31,7 +45,8 @@
 (defn sort-by-difficulty[questions]
   (let [{:keys [difficulty]} @app-state]
     (sort (fn[a b] (compare (difficulty b 1000000) (difficulty a 1000000)))
-          questions)))
+          questions))
+  )
 
 (defn make-quiz[n level question-types]
   (shuffle (take n (sort-by-difficulty (all-questions level question-types)))))
@@ -127,7 +142,7 @@
     2000000))
 
 (defn read-state-from-local-storage[]
-  (doseq [setting [:difficulty :quiz-length :level :question-types]]+	
+  (doseq [setting [:difficulty :quiz-length :level :question-types]]
     (let [setting-string (get-local-storage (name setting))
           setting-value (if setting-string
                           (edn/read-string setting-string) (setting defaults))]
@@ -196,7 +211,7 @@
 
 (defn right-or-wrong-td[style question user-answer]
   (let [right (right? question user-answer)]
-    (let [s (assoc-in style [:style :color] (if right "#00aa00" "ff0000"))]
+    (let [s (assoc-in style [:style :color] (if right "#00aa00" "#ff0000"))]
       [:td s
        (if right "\u2713" "\u2717")])))
 
@@ -399,14 +414,14 @@ h-8 v16 h-8 v-16 h-4 v32 h-8 v-32 h-64 v32 h-8 v-32 h-4 v16 h-8 v-16 h-8 z"}]])
           [results-div])])
      [progress difficulty level question-types]]))
 
-(defn mount[el]
-  (r/render-component [quiz-app] el))
+;; (defn mount[el]
+;;   (r/render-component [quiz-app] el))
 
-(defn get-app-element[]
-  (.getElementById js/document "app"))
+;; (defn get-app-element[]
+;;   (.getElementById js/document "app"))
 
-(defn mount-app-element[]
-  (mount (get-app-element)))
+;; (defn mount-app-element[]
+;;   (mount (get-app-element)))
 
 (defn key-listener[^js/KeyboardEvent key-event]
   (let [{:keys [screen]} @app-state
@@ -433,11 +448,11 @@ h-8 v16 h-8 v-16 h-4 v32 h-8 v-32 h-64 v32 h-8 v-32 h-4 v16 h-8 v-16 h-8 z"}]])
 (defn add-key-listener[]
   (.addEventListener js/document "keydown" key-listener))
 
-(defn load-listener[x]
-  (mount-app-element))
+;; (defn load-listener[x]
+;;   (mount-app-element))
 
-(defn add-load-listerner[]
-  (.addEventListener js/window "load" load-listener))
+;; (defn add-load-listerner[]
+;;   (.addEventListener js/window "load" load-listener))
 
 (defonce setup-stuff
   (do
@@ -445,9 +460,18 @@ h-8 v16 h-8 v-16 h-4 v32 h-8 v-32 h-64 v32 h-8 v-32 h-4 v16 h-8 v-16 h-8 z"}]])
     (let [{:keys [quiz-length level question-types]} @app-state]
       (print question-types)
       (add-key-listener)
-      (add-load-listerner)
+;      (add-load-listerner)
       (start-new-quiz quiz-length level question-types))
          true))
 
-(defn ^:after-load on-reload []
-  (mount-app-element))
+;; (defn ^:after-load on-reload []
+;;   (mount-app-element))
+
+(defonce root (delay (rdc/create-root (.getElementById js/document "app"))))
+
+(defn ^:dev/after-load mount-it []
+  (rdc/render @root [quiz-app]))
+
+(defn init []
+  (println "Hello World!")
+  (mount-it))
