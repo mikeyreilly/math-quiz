@@ -12,7 +12,11 @@
  :builds
  {:frontend
   {:target :browser
-   :modules {:main {:init-fn quaxt.arithmetic-challenge/init}}}
+   :modules {:main {:init-fn quaxt.arithmetic-challenge/init}}
+   ;; `shadow-cljs release frontend` writes here instead of public/js, so it
+   ;; doesn't clash with a running watch. scripts/deploy-gh-pages.sh
+   ;; assembles the rest of the static site around it in out/site.
+   :release {:output-dir "out/site/js"}}
 
   ;; Runs every namespace ending in -test in the browser.
   ;; shadow-cljs generates out/test/index.html; open http://localhost:8021/

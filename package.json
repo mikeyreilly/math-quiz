@@ -2,6 +2,9 @@
   "name": "acme-app",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "deploy": "scripts/deploy-gh-pages.sh"
+  },
   "devDependencies": {
     "shadow-cljs": "3.5.4"
   },
